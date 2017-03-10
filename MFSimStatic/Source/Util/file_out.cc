@@ -875,8 +875,11 @@ void FileOut::WriteHardwareFileWithWireRoutes(DmfbArch *arch, string fileName, b
 
 
 	// Output wire routing info if it has been generated
-	if (includeWireRouting)
+	if (arch->pcb != NULL)
 	{
+		// Print wire routing node offset for array
+		os << "\nARRAYOFFSET (" << arch->wrOffsetX << ", " << arch->wrOffsetY << ")" << endl;
+
 		os << endl << "// Wire-segment descriptions" << endl;
 		os << "WIREGRIDDIM (" << a->getWireRouter()->getModel()->getWireGridXSize() << ", " << a->getWireRouter()->getModel()->getWireGridYSize() << ")" << endl;
 		os << "NUMHTRACKS (" << a->getWireRouter()->getNumHorizTracks() << ")" << endl;
@@ -896,10 +899,71 @@ void FileOut::WriteHardwareFileWithWireRoutes(DmfbArch *arch, string fileName, b
 				else
 					claim(false, "Unknown wire-segment type.");
 
-				os << ws->pinNo << ", " << ws->layer << ", " << ws->sourceWireCellX << ", " << ws->sourceWireCellY << ", " << ws->destWireCellX << ", " << ws->destWireCellY << ")" << endl;
-
+				os << ws->pinNo << ", " << ws->layer << ", " << ws->sourceWireCellX + arch->wrOffsetX << ", " << ws->sourceWireCellY + arch->wrOffsetY << ", " << ws->destWireCellX + arch->wrOffsetX << ", " << ws->destWireCellY + arch->wrOffsetY << ")" << endl;
 			}
 		}
+
+		// Print area routing details
+		int totalWireLengthGrid = 0;
+		for(unsigned i = 0; i < arch->areaRouteWires->size(); i++)
+		{
+			WireSegment *ws = arch->areaRouteWires->at(i);
+
+			totalWireLengthGrid += abs(ws->getSourceWireCellX(0) - ws->getDestWireCellX(0)) + abs(ws->getSourceWireCellY(0) - ws->getDestWireCellY(0));
+
+
+			os << "RELLINE (" << ws->pinNo << ", " << ws->layer << ", " << ws->sourceWireCellX << ", " << ws->sourceWireCellY << ", " << ws->destWireCellX << ", " << ws->destWireCellY << ")" << endl;
+		}
+
+		PCB *pcb = arch->pcb;
+		vector<ShiftRegister *> *shiftRegs = arch->shiftRegisters;
+		Microcontroller *mc = arch->microcontroller;
+
+		// Print component information (Shift Register, Microcontroller, PCB)
+		os << "\n\nELECTRODEMICRONS (" << arch->electrodePitchMicrons << ")" << endl;
+
+		// Output electrode array position
+		os << "ARRAYPOSITION (" << pcb->dmfbX << ", " << pcb->dmfbY << ")\n" << endl;
+
+		// Output PCB data
+		os << "PCB (" << 0 << ", " << 0 << ", "
+				<< pcb->srSideWidth << ", " << pcb->mcSideWidth << ", " << pcb->height << ", " << pcb->xPos
+				<< ", " << pcb->yPos << ")" << endl;
+
+		// Output Shift Register data
+		for(unsigned i = 0; i < shiftRegs->size(); i++)
+		{
+			int xPos = shiftRegs->at(i)->xPos;
+			xPos++;
+			int yPos = shiftRegs->at(i)->yPos;
+			yPos++;
+
+			os << "SHIFTREGISTER (" << shiftRegs->at(i)->type << ", "
+					<< shiftRegs->at(i)->xPos << ", " << shiftRegs->at(i)->yPos << ", " << shiftRegs->at(i)->rotateDeg << ")" << endl;
+		}
+
+		// Output Microcontroller data
+		os << "MICROCONTROLLER (" << arch->mcType << ", " << mc->xPos << ", " << mc->yPos << ")\n" << endl;
+
+		// Output Via data
+		for(unsigned i = 0; i < arch->vias->size(); i++)
+		{
+			os << "VIA (" << arch->vias->at(i)->x << ", " << arch->vias->at(i)->y << ", " << arch->vias->at(i)->beginLayer << ", " << arch->vias->at(i)->endLayer << ")" << endl;
+		}
+
+		// Output Wire length and PCB Data
+		int oCap = arch->getWireRouter()->getNumHorizTracks();
+		int tileGridSize = ((oCap+2)*2 - 1);
+		double totalWireDistMM = (totalWireLengthGrid) / (tileGridSize - 1.0) * arch->pcb->cellDimPixels / (double) arch->pcb->conversionFactor;
+		double widthDistPlusBuff = (arch->numWRCellsHoriz * (tileGridSize - 1.0)) / (tileGridSize - 1.0) * arch->pcb->cellDimPixels / (double) arch->pcb->conversionFactor;
+		double heightDistPlusBuff = (arch->numWRCellsVert * (tileGridSize - 1.0)) / (tileGridSize - 1.0) * arch->pcb->cellDimPixels / (double) arch->pcb->conversionFactor;
+		double totalManhat = (arch->totalManhatDistToWRDest) / (tileGridSize - 1.0) * arch->pcb->cellDimPixels / (double) arch->pcb->conversionFactor;
+
+		os << "// Total Wire Distance in Milimeters: " << totalWireDistMM << endl;
+		os << "// Total Optimal Wire Distance in Milimeters: " << totalManhat << endl;
+		os << "// Total Width Distance including buffer around SR: " << widthDistPlusBuff << endl;
+		os << "// Total Height Distance including buffer around SR: " << heightDistPlusBuff << endl;
+
 	}
 
 	os.close();

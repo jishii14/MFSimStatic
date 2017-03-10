@@ -38,12 +38,12 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 
-import com.sun.j3d.utils.applet.MainFrame;
+//import com.sun.j3d.utils.applet.MainFrame;
 
 import dmfbSimVisualizer.parsers.*;
 import dmfbSimVisualizer.views.ImagePanel;
 import dmfbSimVisualizer.views.Main;
-import dmfbSimVisualizer.views.Placed3dViewerApp;
+//import dmfbSimVisualizer.views.Placed3dViewerApp;
 
 public class OutputThread extends Thread {
 	Main m;
@@ -201,7 +201,7 @@ public class OutputThread extends Thread {
 		}
 		else if (drawOptions.simType == "3D Placement")
 		{	    	
-			Frame frame = new MainFrame(new Placed3dViewerApp(inFile), 256, 256);
+			//Frame frame = new MainFrame(new Placed3dViewerApp(inFile), 256, 256); TODO: UNCOMMENT
 		}
 		else
 			MFError.DisplayError("Unknown/unhandled visualization type selected.");

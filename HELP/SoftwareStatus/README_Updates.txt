@@ -16,6 +16,59 @@
 ***********************************************************************************************
 *                                        Revisions List                                       *
 ***********************************************************************************************
+March 9, 2017 (v4.0)
+General (applicable to multiple projects)
+-----------------------------------------
+
+MFSimStatic Changes (C++)
+-------------------------
+- Added various instance variables to dmfbarch class that deal with full pcb layout
+- Added synthesis methods to fully route wires between array and IC's
+- Added new timer to synthesis that times area routing process
+- Added 4 hardcoded flags in synthesis file to dictate which wires to route for ease of debugging
+- Added classes to encapsulate each of the IC types
+- Updated file out to print out the PCB layout to Hardware file
+- Added 3 larger array hardware types accessible through main.cc in wireRoutingCase method
+- Added new structs and enums in their respective resource files used in pcb layout calculation
+
+
+MFSimStaticGUI Changes (Java)
+-----------------------------
+
+
+DmfbSimVisualizer Changes (Java)
+--------------------------------
+- Added new image parts that show IC's and wires connecting them to array
+- Updated hardware file parser to reflect the changes that were made to make the above possible
+- Added classes to encapsulate each of the IC types
+- Added hardware constants class that must be changed in order to add new IC types (the specific IC class must also be changed to link to constants)
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+
+Jun 4, 2016 (v4.0)
+General (applicable to multiple projects)
+-----------------------------------------
+
+MFSimStatic Changes (C++)
+-------------------------
+- Added electronmicron, shiftregister, and microcontroller to Hardware file.
+
+
+MFSimStaticGUI Changes (Java)
+-----------------------------
+
+
+DmfbSimVisualizer Changes (Java)
+--------------------------------
+- Added classes to draw shiftregisters and microcontrollers.
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
 Sept 10, 2015 (v3.2)
 General (applicable to multiple projects)
 -----------------------------------------

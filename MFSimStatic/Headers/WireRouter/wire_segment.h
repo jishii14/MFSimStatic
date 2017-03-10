@@ -48,6 +48,11 @@ class WireSegment : Entity
 
 
 	public:
+		bool isAreaRouted;
+		bool willRouteToMC;
+		int numBeforeMC;
+		int side;
+
 		// Constructors
 		WireSegment();
 		WireSegment(int pin, int lay, int beginX, int beginY, int endX, int endY);

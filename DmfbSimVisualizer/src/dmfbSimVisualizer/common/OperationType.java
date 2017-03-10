@@ -38,5 +38,6 @@ public enum OperationType {
 	SPLIT,
 	HEAT,
 	DETECT,
-	STORAGE
+	STORAGE,
+	COOL
 }
